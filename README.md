@@ -1,3 +1,3 @@
 # PSY6422_assignment
 
-this is a test
+Project fir PSY6422 : Leading causes of deaths in the USA in 2017
