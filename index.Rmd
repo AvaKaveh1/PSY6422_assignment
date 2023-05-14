@@ -1,0 +1,131 @@
+---
+title: "PSY6422 Assignment"
+author: "220225591"
+date: "9 May 2023"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+### Leading causes of death in the USA in 2017
+
+
+### Research Question: 
+ What are the leading causes of death in the USA in 2017?
+
+According to the Centres for Disease Control and Prevention (CDC), heart disease and cancer have consistently been the top two leading causes of death in the United States for many years. Analysis of the causes of death may be useful in identifying risk factors or effective preventative measures to reduce mortality rates. 
+
+This project aims to graphically visualise which cause of death contributes most to mortality rates in the United States in 2017. My aim is to visually demonstrate the differences between each cause to identify the largest and least contributor towards deaths. 
+
+&nbsp;
+
+### Data origin: 
+This data is sourced from the National Centre for Health Statistics (NCHS). The dataset presents the number of deaths (per 100,000 population) and age-adjusted death rates for the 10 leading causes of death as well as all causes of death combined in the United States from 1999-2017. The information within the data set is based on death certificate information collected by the National Vital Statistics System, which is run by the NCHS. The data covers a range of causes of death including, heart disease, cancer, diabetes, stroke and others.
+
+The raw data set contained 6 variables including Year, X113 cause name, cause, state, deaths and age-adjusted death rate. The variable "Year" presented data from the years 1999-2017. The variable "state" included data on all 50 states, as well as deaths combined in the United States. However, as the rationale for the report is to identify the leading cause of death in the USA in 2017, the data set was subsetted to only contain information from the year 2017 and deaths in the USA combined rather than for each state.
+
+The final data set contained 4  variables and 10 entries.
+
+The 10 leading causes are:
+1. Unintentional injuries
+2. Alzheimer's disease
+3. Stroke
+4. Chronic lower respiratory diseases (CLRD)
+5. Diabetes
+6. Heart disease
+7. Influenza and pneumonia
+8. Suicide
+9. Cancer
+10. Kidney disease
+
+
+```{r data prep, results = TRUE}
+
+#---- ---------------------------------IMPORT DATA----------------------------------
+data <- read.csv("NCHS_-_Leading_Causes_of_Death__United_States.csv")
+
+#Keeping only the columns which contain the variable of year, causes of death, state and number of deaths
+newdata <- data[, c("Year", "Cause.Name", "State", "Deaths")]
+
+#Tidying up the data by renaming the columns
+colnames(newdata) <- c("Year", "Cause" , "State" , "Death")
+
+#Filter the dataset to only include data from the year 2017
+data_2017 <- newdata[newdata$Year == 2017,]
+
+#Remove the row contain data on "All causes"
+data_2017_allcauses <- subset(data_2017, Cause != "All causes")
+
+#Subset the data to only include data for the United States
+data_causeUSA <- subset(data_2017_allcauses, State == "United States")
+
+#Converting death column to a numeric variable and removing commas
+data_causeUSA$Death <- as.numeric (gsub(",","", data_causeUSA$Death))
+
+data_causeUSA$Cause <- reorder(data_causeUSA$Cause, data_causeUSA$Death)
+
+#Displaying first few rows of the final data set 
+head(data_causeUSA)
+```
+
+
+
+### Animated bar chart visualising leading causes of death in 2017
+
+To visualise this data, the most appropriate graph is a  horizontal bar chart. The code below generates a plot showing the leading causes of death in the USA for the year 2017. 
+
+```{r fig.width=8, fig.height=6, message = FALSE}
+# Install and load Tidyverse, ggplot, gganimate and ploty
+library(tidyverse)
+library(ggplot2)
+library(gganimate)
+library(plotly)
+
+#Code for visualisation
+gg <- ggplot(data_causeUSA, aes(x = reorder(Cause, Death), y = Death, fill = Cause)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Leading causes of death in the USA (2017)", x = "Cause of death", y = "Number of deaths") +
+  coord_flip() +
+  scale_y_continuous(limits = c(0, 700000), labels = scales::comma) +
+  scale_fill_viridis_d(option = "B", direction = -1) +
+  theme(panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = "none",
+        plot.title = element_text(size = 18),
+        axis.title = element_text(size = 14),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14))
+
+gg_anim <- gg + transition_states(Cause, transition_length = 2, state_length = 1)
+
+ggplotly(gg_anim)
+```
+
+### Discussion:
+After visualising this data, it can be concluded that heart disease is the leading cause of death in 2017 in the United States. If I were to do more data visualisations with more time, an interesting way to further visualise these findings would be to compare the mortality rates between each year (1999-2017) through a stacked bar chart. Additionally, I would extend this project to examine the leading causes of death in other countries such as the United Kingdom to identify whether there is large differences between them. 
+
+My next idea would be to examine relationships between certain causes i.e. diabetes, heart disease and stroke. As previous research has suggested that adults with diabetes are twice as likely to have heart disease or a stroke in comparison to people who do not have heart disease. Therefore, it would be interesting to visualise the relationship between these causes through a line graph.
+
+Regarding the original data set, there are several variables which were not thoroughly used within the visualisation. For example, the "State" variable included all 50 states as well as the United States overall. Therefore, an additional step would be to investigate the differences in causes of death across states. As the rationale of this visualisation was to identify the overall leading causes of death in the USA in 2017, the data on each state was redundant and thus removed. Additionally, the age-adjusted death rate was removed, potentially a future step would be to examine the causes of deaths for each age group. For example, Alzheimer disease and heart disease are rarely found in younger age groups, thus significant differences are likely to be found. 
+
+A limitation of this data set was that it did not include the addition of COVID-19. The virus was a new addition to the list in 2020. Therefore, if this data set included COVID-19, results are likely to look different with the virus being in the top three.
+
+### Self-reflection:
+I enjoyed doing this project and I learned a lot, especially regarding data wrangling. The project significantly increased my confidence and self-dependence in data management and visualisation, which I will definitely extend into future projects. 
+
+Initially, when I found the data set I was intimated by the size of the data and number of responses, however, after taking some time to learn how to clean and filter data sets, I realised that it is not as daunting as I imagined. 
+
+### References:
+My GitHub repository: [here](https://github.com/AvaKaveh1/PSY6422_assignment)
+
+NCHS data: https://www.cdc.gov/nchs/data-visualization/mortality-leading-causes/#citation
+
+
