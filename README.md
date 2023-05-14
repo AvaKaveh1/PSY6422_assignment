@@ -11,8 +11,8 @@ The project was written in R using the following packages:
 -	gganimate
 
 The files above include:
-Data = The original data set before any cleaning along with a codebook detailing the meanings behind the variables
 
+Data = The original data set before any cleaning along with a codebook detailing the meanings behind the variables
 index.Rmd = A Rmd file of the code to clean and produce the visualisation
 index.html = A html file of the code to clean and produce the visualisation
 
